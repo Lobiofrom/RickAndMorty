@@ -18,7 +18,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.paging.LoadState
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.example.feature_characters.viewmodel.CharactersViewModel
@@ -46,13 +45,7 @@ fun Characters(
                 Item(
                     character = character,
                     onClick = {
-                        navController.navigate("character/${character.id}") {
-                            popUpTo(navController.graph.findStartDestination().id) {
-                                saveState = true
-                            }
-                            launchSingleTop = true
-                            restoreState = true
-                        }
+                        navController.navigate("character/${character.id}")
                     }
                 )
             }
