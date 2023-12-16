@@ -180,7 +180,10 @@ fun Search(
                 state = rememberLazyGridState(),
                 modifier = Modifier.padding(bottom = 90.dp)
             ) {
-                items(list.itemCount) { index ->
+                items(
+                    list.itemCount,
+                    key = { it }
+                ) { index ->
                     list[index].let { character ->
                         character?.let {
                             Item(foundCharacter = it, onClick = {
@@ -195,7 +198,9 @@ fun Search(
             LazyColumn(
                 modifier = Modifier.padding(bottom = 90.dp)
             ) {
-                items(locationList.itemCount) { index ->
+                items(locationList.itemCount,
+                    key = { it }
+                ) { index ->
                     locationList[index].let {
                         if (it != null) {
                             ItemLocation(

@@ -34,7 +34,10 @@ fun Locations(
     LazyColumn(
         modifier = Modifier.fillMaxSize()
     ) {
-        items(list.itemCount) { index ->
+        items(
+            list.itemCount,
+            key = { it }
+        ) { index ->
             list[index].let {
                 if (it != null) {
                     Item(

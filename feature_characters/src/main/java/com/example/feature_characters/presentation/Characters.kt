@@ -40,7 +40,10 @@ fun Characters(
         state = scrollState,
         modifier = Modifier.fillMaxSize()
     ) {
-        items(list.itemCount) { index ->
+        items(
+            list.itemCount,
+            key = { it }
+        ) { index ->
             list[index]?.let { character ->
                 Item(
                     character = character,
