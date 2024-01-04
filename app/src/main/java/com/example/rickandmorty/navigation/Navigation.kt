@@ -50,7 +50,7 @@ fun Navigation(
             Search(
                 findCharacterVM = koinViewModel(),
                 navController = navHostController,
-                findLocationVM = koinViewModel()
+                //findLocationVM = koinViewModel()
             )
         }
     }

@@ -1,5 +1,6 @@
 package com.example.feature_search.presentation
 
+import android.util.Log
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -19,6 +20,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -34,28 +36,31 @@ import androidx.navigation.NavController
 import androidx.paging.LoadState
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.example.feature_search.VM.FindCharacterVM
-import com.example.feature_search.VM.FindLocationVM
+import com.example.feature_search.data.states.States
 
 @Composable
 fun Search(
-    findCharacterVM: FindCharacterVM, findLocationVM: FindLocationVM, navController: NavController
+    findCharacterVM: FindCharacterVM, navController: NavController
 ) {
     var name by rememberSaveable { mutableStateOf("") }
     var status by rememberSaveable { mutableStateOf("") }
     var location by rememberSaveable { mutableStateOf("") }
 
     val list = findCharacterVM.list.collectAsLazyPagingItems()
-    val locationList = findLocationVM.list.collectAsLazyPagingItems()
+    val locationList = findCharacterVM.listLocation.collectAsLazyPagingItems()
+    var state by remember {
+        mutableStateOf<States>(States.ShowCharacters)
+    }
 
     var showProgress by remember {
         mutableStateOf(false)
     }
 
-    var showCharacters by remember {
-        mutableStateOf(false)
-    }
-    var showLocations by remember {
-        mutableStateOf(false)
+    LaunchedEffect(Unit) {
+        findCharacterVM.state.collect {
+            state = it
+            Log.d("state", "state======$state")
+        }
     }
 
     Column(
@@ -114,8 +119,6 @@ fun Search(
                     onClick = {
                         //throw RuntimeException("Test Crash") // Force a crash
                         showProgress = true
-                        showCharacters = true
-                        showLocations = false
                         findCharacterVM.findCharacter(name, status)
                     },
                     modifier = Modifier
@@ -162,9 +165,7 @@ fun Search(
                 Button(
                     onClick = {
                         showProgress = true
-                        showLocations = true
-                        showCharacters = false
-                        findLocationVM.getLocation(location)
+                        findCharacterVM.getLocation(location)
                     },
                     modifier = Modifier
                         .padding(start = 6.dp, bottom = 3.dp)
@@ -174,38 +175,36 @@ fun Search(
                 }
             }
         }
-        if (showCharacters) {
-            LazyHorizontalGrid(
-                rows = GridCells.Fixed(3),
-                state = rememberLazyGridState(),
-                modifier = Modifier.padding(bottom = 90.dp)
-            ) {
-                items(
-                    list.itemCount,
-                    key = { it }
-                ) { index ->
-                    list[index].let { character ->
-                        character?.let {
-                            Item(foundCharacter = it, onClick = {
-                                navController.navigate("character/${character.id}")
-                            })
+        when (state) {
+            States.ShowCharacters -> {
+                LazyHorizontalGrid(
+                    rows = GridCells.Fixed(3),
+                    state = rememberLazyGridState(),
+                    modifier = Modifier.padding(bottom = 90.dp)
+                ) {
+                    items(list.itemCount, key = { it }) { index ->
+                        list[index].let { character ->
+                            character?.let {
+                                Item(foundCharacter = it, onClick = {
+                                    navController.navigate("character/${character.id}")
+                                })
+                            }
                         }
                     }
                 }
             }
-        }
-        if (showLocations) {
-            LazyColumn(
-                modifier = Modifier.padding(bottom = 90.dp)
-            ) {
-                items(locationList.itemCount,
-                    key = { it }
-                ) { index ->
-                    locationList[index].let {
-                        if (it != null) {
-                            ItemLocation(
-                                location = it, navController = navController
-                            )
+
+            States.ShowLocations -> {
+                LazyColumn(
+                    modifier = Modifier.padding(bottom = 90.dp)
+                ) {
+                    items(locationList.itemCount, key = { it }) { index ->
+                        locationList[index].let {
+                            if (it != null) {
+                                ItemLocation(
+                                    location = it, navController = navController
+                                )
+                            }
                         }
                     }
                 }
